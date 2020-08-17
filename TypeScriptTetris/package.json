@@ -1,0 +1,24 @@
+{
+  "name": "typescript-tetris",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "tsc": "./node_modules/.bin/tsc",
+    "babel": "./node_modules/.bin/babel build --out-dir build-babel --source-maps",
+    "webpack": "webpack && cp public/* dist",
+    "build": "npm run tsc && npm run babel && npm run webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.6.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "tslint": "^6.1.3",
+    "typescript": "^3.9.7",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  }
+}

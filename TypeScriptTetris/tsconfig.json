@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "target": "es2017",
+        "noImplicitAny": true,
+        "moduleResolution": "classic",
+        "sourceMap": true,
+        "outDir": "build",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
