@@ -2,3 +2,7 @@
 *.user
 bin/
 obj/
+TypeScriptTetris/build/
+TypeScriptTetris/build-babel/
+TypeScriptTetris/node_modules
+.vscode/
