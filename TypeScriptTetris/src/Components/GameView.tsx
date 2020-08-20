@@ -7,7 +7,7 @@ interface IState { }
 
 export class GameView extends Component<IProps, IState> {
     componentDidMount() {
-        console.log("Mounted");
+        startGame();
     }
     render(): React.ReactNode {
         return (
@@ -32,7 +32,6 @@ export class GameView extends Component<IProps, IState> {
                     <div>Level: <span id="levelLabel"></span></div>
                     <div>Rows: <span id="rowsLabel"></span></div>
                 </div>
-                {startGame()}
             </>
         )
     }
