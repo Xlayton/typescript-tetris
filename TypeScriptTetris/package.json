@@ -6,7 +6,7 @@
   "scripts": {
     "tsc": "./node_modules/.bin/tsc",
     "babel": "./node_modules/.bin/babel build --out-dir build-babel --source-maps",
-    "webpack": "webpack && cp public/* dist",
+    "webpack": "webpack && Xcopy ./public ./dist /i",
     "build": "npm run tsc && npm run babel && npm run webpack"
   },
   "keywords": [],
@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0"
   }
 }
