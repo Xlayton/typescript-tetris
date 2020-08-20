@@ -43,9 +43,9 @@ export class Game {
             this.grid.paint();
             this.grid.draw(this.currentShape);
             // recursive render loop
-            requestAnimFrame((function (self) {
+            requestAnimFrame.call(window, ((function (self) {
                 return function () { self.draw(); };
-            })(this));
+            })(this)));
         }
     }
 
@@ -60,9 +60,9 @@ export class Game {
         this.speed = 1000;
         this.phase = Game.gameState.playing;
         // kick off the render loop
-        requestAnimFrame((function (self) {
+        requestAnimFrame.call(window, ((function (self) {
             return function () { self.draw(); };
-        })(this));
+        })(this)));
         this.incrementLevel(); // will start the game timer & update the labels
     }
 
