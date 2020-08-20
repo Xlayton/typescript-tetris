@@ -1,4 +1,3 @@
-import { Point } from './Point';
 import { Shape } from './Shape';
 import { Grid } from './Grid';
 import { requestAnimFrame } from './app';

@@ -11,7 +11,7 @@ export const requestAnimFrame = (() => {
         };
 })();
 
-(() => {
+export const startGame = (() => {
     "use strict";
 
     function init() {
@@ -19,5 +19,5 @@ export const requestAnimFrame = (() => {
     }
 
     window.addEventListener('DOMContentLoaded', init, false);
-})();
+});
 
