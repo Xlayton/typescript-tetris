@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "target": "ES3",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "removeComments": true,
+        "outDir": "build",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
