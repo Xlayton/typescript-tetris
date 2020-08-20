@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { HashRouter as Router, Route, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import { GameView } from './GameView';
 
 interface IProps { }
@@ -11,9 +11,9 @@ export class App extends Component<IProps, IState> {
         return (
             <Router>
                 <NavLink to="/play">LINK</NavLink>
-               <div id="pageRoute">
-                    <Route exact path="/play" component={GameView}/>
-               </div>
+                <div id="pageRoute">
+                    <Route exact path="/play" component={GameView} />
+                </div>
             </Router>
         )
     }
