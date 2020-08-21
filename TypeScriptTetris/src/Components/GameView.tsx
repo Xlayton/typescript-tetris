@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { startGame } from '../Game/app';
+import io from 'socket.io-client';
 
 interface IProps { }
 
@@ -7,6 +8,11 @@ interface IState { }
 
 export class GameView extends Component<IProps, IState> {
     componentDidMount() {
+        const socket = io('http://localhost:3001', {
+            path: "/gameio",
+        });
+        socket.on("connect", () => console.log("Client connected:", socket.id))
+        socket.on("message", (data: any) => console.log("Recieved Message:", data))
         startGame();
     }
     render(): React.ReactNode {
