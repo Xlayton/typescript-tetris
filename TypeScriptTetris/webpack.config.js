@@ -5,7 +5,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     devtool: "source-map",
     entry: './build-babel/Components/index.js',
-    mode: 'production',
+    mode: 'development',
     target: "web",
     output: {
         filename: 'app.js',
