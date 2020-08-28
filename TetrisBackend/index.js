@@ -10,13 +10,8 @@ const urlencodedParser = bodyParser.urlencoded({
 });
 
 const app = express();
-const server = http.createServer(app);
-const io = new socketio(server, {
-    path: "/gameio",
-    pingInterval: 250,
-    pingTimeout: 2000,
-    cookie: false
-});
+
+app.use(cors());
 
 app.get('/lobby', routes.getLobbies);
 app.get('/lobby/open', routes.getOpenLobbies);
@@ -26,6 +21,14 @@ app.post('/join', urlencodedParser, routes.joinOpenLobby);
 app.post('/makeRoom', urlencodedParser, routes.makeRoom);
 app.post('/remove', routes.removeFinishedGames);
 app.post('/start', urlencodedParser, routes.startGame);
+
+const server = http.createServer(app);
+const io = new socketio(server, {
+    path: "/gameio",
+    pingInterval: 250,
+    pingTimeout: 2000,
+    cookie: false
+});
 
 io.on('connection', socket => socket.send("HELLO"));
 

@@ -9,6 +9,9 @@ interface IProps { }
 interface IState { }
 
 export class App extends Component<IProps, IState> {
+
+    static apiUrl: string = "localhost:3001";
+
     render(): React.ReactNode {
         return (
             <Router>
@@ -18,7 +21,7 @@ export class App extends Component<IProps, IState> {
                 </div>
                 <NavLink to="/lobby">Lobby Page</NavLink>
                 <div id="pageRoute">
-                    <Route exact path="/lobby" component={LobbyView} />
+                    <Route exact path="/lobby" component={() => <LobbyView apiHost={App.apiUrl} username="Testing..." />} />
                 </div>
                 <NavLink to="/">Home</NavLink>
                 <div id="pageRoute">

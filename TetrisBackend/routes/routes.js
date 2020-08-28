@@ -11,6 +11,8 @@ const roomSample = {
     isFinished: false
 };
 
+lobbies.push(roomSample)
+
 // create a new room
 const makeRoom = (req, res) => {
     let room = {
@@ -48,7 +50,7 @@ const removeFinishedGames = (req, res) => {
             delete lobbies[i];
         }
     }
-    lobbies = lobbies.filter(lobby=>lobby != null);
+    lobbies = lobbies.filter(lobby => lobby != null);
     res.json(lobbies);
 };
 
@@ -67,8 +69,8 @@ const joinOpenLobby = (req, res) => {
 };
 
 // starts all games that arent started and have an opponenet & host
-const startGame = (req,res) => {
-    for(lobby of lobbies) {
+const startGame = (req, res) => {
+    for (lobby of lobbies) {
         if (lobby.host !== null && lobby.opponent !== null) {
             lobby.isPlaying = true;
         }
@@ -78,7 +80,7 @@ const startGame = (req,res) => {
 
 // sets game to finished based on ID
 const finishGame = (req, res) => {
-    for(lobby of lobbies) {
+    for (lobby of lobbies) {
         if (req.body.id === lobby.id) {
             lobby.isFinished = true;
         }
@@ -94,8 +96,4 @@ module.exports = {
     joinOpenLobby,
     startGame,
     finishGame,
-    
-    
-    
-    test,
 }

@@ -1,4 +1,3 @@
-
 export class Lobby {
     playerCount: number;
     maxPlayers: number;
@@ -9,7 +8,6 @@ export class Lobby {
         this.playerCount = playerCount;
         this.maxPlayers = maxPlayers;
         this.id = id;
-        this.users = users;
     }
 }
 

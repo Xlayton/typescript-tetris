@@ -150,8 +150,11 @@ var App = function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     App.prototype.render = function () {
-        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/play" }, "Play the Game"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: GameView_1.GameView })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: LobbyView_1.LobbyView })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
+        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/play" }, "Play the Game"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: GameView_1.GameView })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
+                return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl });
+            } })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
     };
+    App.apiUrl = "http://localhost:3001";
     return App;
 }(react_1.Component);
 exports.App = App;
@@ -374,16 +377,35 @@ var __importStar = undefined && undefined.__importStar || function (mod) {
 exports.__esModule = true;
 exports.LobbyView = void 0;
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+var model_1 = __webpack_require__(/*! ./model */ "./build-babel/Components/model.js");
 var LobbyView = function (_super) {
     __extends(LobbyView, _super);
     function LobbyView() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = {
+            lobbies: [new model_1.Lobby(1, 10, "#fff", [new model_1.User("Jeff")]), new model_1.Lobby(2, 5, "jjjjjjjj", [new model_1.User("Kathrine")]), new model_1.Lobby(4, 4, "ggggg", [new model_1.User("Fred")])]
+        };
+        return _this;
     }
     LobbyView.prototype.componentDidMount = function () {
-        console.log("Mounted");
+        var _this = this;
+        console.log(this.props.apiHost + "/lobby");
+        fetch(this.props.apiHost + "/lobby", {
+            method: "get"
+        }).then(function (res) {
+            return res.json();
+        }).then(function (rawLobbies) {
+            return _this.setState({ lobbies: rawLobbies.map(function (rawLobby) {
+                    return new model_1.Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent]);
+                }) });
+        })["catch"](function (err) {
+            return console.log(err);
+        });
     };
     LobbyView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button" }, "Create Lobby"));
+        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button" }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
+            return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users)));
+        })));
     };
     return LobbyView;
 }(react_1.Component);
@@ -413,6 +435,39 @@ var App_1 = __webpack_require__(/*! ./App */ "./build-babel/Components/App.js");
 react_dom_1["default"].render(React_1["default"].createElement(App_1.App, null), document.getElementById("root"));
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./build-babel/Components/model.js":
+/*!*****************************************!*\
+  !*** ./build-babel/Components/model.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.User = exports.Lobby = void 0;
+var Lobby = function () {
+    function Lobby(playerCount, maxPlayers, id, users) {
+        this.playerCount = playerCount;
+        this.maxPlayers = maxPlayers;
+        this.id = id;
+    }
+    return Lobby;
+}();
+exports.Lobby = Lobby;
+var User = function () {
+    function User(username) {
+        this.username = username;
+    }
+    return User;
+}();
+exports.User = User;
+//# sourceMappingURL=model.js.map
+//# sourceMappingURL=model.js.map
 
 /***/ }),
 
