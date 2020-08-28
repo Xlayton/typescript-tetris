@@ -10,7 +10,7 @@ interface IState { }
 
 export class App extends Component<IProps, IState> {
 
-    static apiUrl: string = "localhost:3001";
+    static apiUrl: string = "http://localhost:3001";
 
     render(): React.ReactNode {
         return (

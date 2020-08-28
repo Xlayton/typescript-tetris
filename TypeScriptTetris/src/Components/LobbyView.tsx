@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { startGame } from '../Game/app';
 import { Lobby, User } from './model';
 
 interface IProps {
@@ -14,11 +13,10 @@ interface IState {
 //This should set up the lobby stuff. Views all lobbies. Lets join one and create a new lobby
 export class LobbyView extends Component<IProps, IState> {
     state: IState = {
-        lobbies: [new Lobby(1, 10, "#fff", [new User("Jeff")]), new Lobby(2, 5, "jjjjjjjj", [new User("Kathrine")]), new Lobby(4, 4, "ggggg", [new User("Fred")])]
+        lobbies: []
     }
 
     componentDidMount() {
-        console.log(`${this.props.apiHost}/lobby`)
         fetch(`${this.props.apiHost}/lobby`, {
             method: "get"
         })
@@ -28,12 +26,21 @@ export class LobbyView extends Component<IProps, IState> {
     }
 
     createLobby = () => {
-
+        fetch(`${this.props.apiHost}/makeRoom`, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `host=${this.props.username}`
+        })
+            .then(res => res.json())
+            .then(rawLobby => this.setState({ lobbies: this.state.lobbies.concat(new Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) }));
     }
+
     render(): React.ReactNode {
         return (
             <>
-                <button type="button">Create Lobby</button>
+                <button type="button" onClick={this.createLobby}>Create Lobby</button>
                 <button type="button">Join Lobby</button>
 
                 <div>

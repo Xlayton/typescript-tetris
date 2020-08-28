@@ -11,8 +11,6 @@ const roomSample = {
     isFinished: false
 };
 
-lobbies.push(roomSample)
-
 // create a new room
 const makeRoom = (req, res) => {
     let room = {

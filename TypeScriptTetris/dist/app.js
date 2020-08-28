@@ -151,7 +151,7 @@ var App = function (_super) {
     }
     App.prototype.render = function () {
         return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/play" }, "Play the Game"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: GameView_1.GameView })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
-                return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl });
+                return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl, username: "Testing..." });
             } })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
     };
     App.apiUrl = "http://localhost:3001";
@@ -383,13 +383,25 @@ var LobbyView = function (_super) {
     function LobbyView() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = {
-            lobbies: [new model_1.Lobby(1, 10, "#fff", [new model_1.User("Jeff")]), new model_1.Lobby(2, 5, "jjjjjjjj", [new model_1.User("Kathrine")]), new model_1.Lobby(4, 4, "ggggg", [new model_1.User("Fred")])]
+            lobbies: []
+        };
+        _this.createLobby = function () {
+            fetch(_this.props.apiHost + "/makeRoom", {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "host=" + _this.props.username
+            }).then(function (res) {
+                return res.json();
+            }).then(function (rawLobby) {
+                return _this.setState({ lobbies: _this.state.lobbies.concat(new model_1.Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) });
+            });
         };
         return _this;
     }
     LobbyView.prototype.componentDidMount = function () {
         var _this = this;
-        console.log(this.props.apiHost + "/lobby");
         fetch(this.props.apiHost + "/lobby", {
             method: "get"
         }).then(function (res) {
@@ -403,7 +415,7 @@ var LobbyView = function (_super) {
         });
     };
     LobbyView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button" }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
+        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
             return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users)));
         })));
     };
