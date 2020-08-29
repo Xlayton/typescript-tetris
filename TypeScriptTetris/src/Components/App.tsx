@@ -6,24 +6,33 @@ import { HomeView } from './HomeView';
 
 interface IProps { }
 
-interface IState { }
+interface IState {
+    roomId: string | undefined;
+}
 
 export class App extends Component<IProps, IState> {
+
+    state: IState = {
+        roomId: undefined
+    }
+
+    setRoomId = (roomId: string | undefined) => {
+        this.setState({ roomId: roomId });
+    }
 
     static apiUrl: string = "http://localhost:3001";
 
     render(): React.ReactNode {
         return (
             <Router>
-                <NavLink to="/play">Play the Game</NavLink>
-                <div id="pageRoute">
-                    <Route exact path="/play" component={GameView} />
-                </div>
                 <NavLink to="/lobby">Lobby Page</NavLink>
-                <div id="pageRoute">
-                    <Route exact path="/lobby" component={() => <LobbyView apiHost={App.apiUrl} username="Testing..." />} />
-                </div>
                 <NavLink to="/">Home</NavLink>
+                <div id="pageRoute">
+                    <Route exact path="/play" component={() => <GameView roomId={this.state.roomId} apiUrl={App.apiUrl} setRoomId={this.setRoomId} />} />
+                </div>
+                <div id="pageRoute">
+                    <Route exact path="/lobby" component={() => <LobbyView apiHost={App.apiUrl} username="Testing..." setRoomId={this.setRoomId} roomId={this.state.roomId} />} />
+                </div>
                 <div id="pageRoute">
                     <Route exact path="/" component={HomeView} />
                 </div>

@@ -147,12 +147,22 @@ var HomeView_1 = __webpack_require__(/*! ./HomeView */ "./build-babel/Components
 var App = function (_super) {
     __extends(App, _super);
     function App() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = {
+            roomId: undefined
+        };
+        _this.setRoomId = function (roomId) {
+            _this.setState({ roomId: roomId });
+        };
+        return _this;
     }
     App.prototype.render = function () {
-        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/play" }, "Play the Game"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: GameView_1.GameView })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
-                return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl, username: "Testing..." });
-            } })), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
+        var _this = this;
+        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: function component() {
+                return react_1["default"].createElement(GameView_1.GameView, { roomId: _this.state.roomId, apiUrl: App.apiUrl, setRoomId: _this.setRoomId });
+            } })), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
+                return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl, username: "Testing...", setRoomId: _this.setRoomId, roomId: _this.state.roomId });
+            } })), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
     };
     App.apiUrl = "http://localhost:3001";
     return App;
@@ -222,25 +232,45 @@ exports.GameView = void 0;
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 var app_1 = __webpack_require__(/*! ../Game/app */ "./build-babel/Game/app.js");
 var socket_io_client_1 = __importDefault(__webpack_require__(/*! socket.io-client */ "./node_modules/socket.io-client/lib/index.js"));
+var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var GameView = function (_super) {
     __extends(GameView, _super);
     function GameView() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = {
+            isStarted: false
+        };
+        _this.redirectIfNoRoomId = function () {
+            !_this.props.roomId ? react_1["default"].createElement(react_router_dom_1.Redirect, { to: "/" }) : null;
+        };
+        return _this;
     }
     GameView.prototype.componentDidMount = function () {
-        var socket = socket_io_client_1["default"]('http://localhost:3001', {
-            path: "/gameio"
-        });
-        socket.on("connect", function () {
-            return console.log("Client connected:", socket.id);
-        });
-        socket.on("message", function (data) {
-            return console.log("Recieved Message:", data);
-        });
-        app_1.startGame();
+        var _this = this;
+        if (this.props.roomId) {
+            var socket_1 = socket_io_client_1["default"]("" + this.props.apiUrl, {
+                path: "/gameio"
+            });
+            socket_1.on("connect", function () {
+                return console.log("Client connected:", socket_1.id);
+            });
+            socket_1.on("message", function (data) {
+                return console.log("Recieved Message:", data);
+            });
+            socket_1.on("startgame", function () {
+                _this.setState({ isStarted: true }, function () {
+                    return app_1.startGame();
+                });
+            });
+        }
+    };
+    GameView.prototype.componentWillUnmount = function () {
+        if (this.props.roomId) {
+            this.props.setRoomId(undefined);
+        }
     };
     GameView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("h1", null, "This is working from React"), react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Keys:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape"), react_1["default"].createElement("li", null, "P - pause / resume game"), react_1["default"].createElement("li", null, "F - faster"), react_1["default"].createElement("li", null, "F2 - start new game")), react_1["default"].createElement("div", null, "Score: ", react_1["default"].createElement("span", { id: "scoreLabel" })), react_1["default"].createElement("div", null, "Level: ", react_1["default"].createElement("span", { id: "levelLabel" })), react_1["default"].createElement("div", null, "Rows: ", react_1["default"].createElement("span", { id: "rowsLabel" }))));
+        return react_1["default"].createElement(react_1["default"].Fragment, null, this.redirectIfNoRoomId(), react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Keys:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape"), react_1["default"].createElement("li", null, "P - pause / resume game"), react_1["default"].createElement("li", null, "F - faster"), react_1["default"].createElement("li", null, "F2 - start new game")), react_1["default"].createElement("div", null, "Score: ", react_1["default"].createElement("span", { id: "scoreLabel" })), react_1["default"].createElement("div", null, "Level: ", react_1["default"].createElement("span", { id: "levelLabel" })), react_1["default"].createElement("div", null, "Rows: ", react_1["default"].createElement("span", { id: "rowsLabel" }))));
     };
     return GameView;
 }(react_1.Component);
@@ -378,6 +408,7 @@ exports.__esModule = true;
 exports.LobbyView = void 0;
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 var model_1 = __webpack_require__(/*! ./model */ "./build-babel/Components/model.js");
+var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var LobbyView = function (_super) {
     __extends(LobbyView, _super);
     function LobbyView() {
@@ -395,29 +426,36 @@ var LobbyView = function (_super) {
             }).then(function (res) {
                 return res.json();
             }).then(function (rawLobby) {
-                return _this.setState({ lobbies: _this.state.lobbies.concat(new model_1.Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) });
+                _this.props.setRoomId(rawLobby.id);
             });
+        };
+        _this.redirectToGame = function () {
+            return _this.props.roomId ? react_1["default"].createElement(react_router_dom_1.Redirect, { to: "/play" }) : null;
         };
         return _this;
     }
     LobbyView.prototype.componentDidMount = function () {
         var _this = this;
-        fetch(this.props.apiHost + "/lobby", {
-            method: "get"
-        }).then(function (res) {
-            return res.json();
-        }).then(function (rawLobbies) {
-            return _this.setState({ lobbies: rawLobbies.map(function (rawLobby) {
-                    return new model_1.Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent]);
-                }) });
-        })["catch"](function (err) {
-            return console.log(err);
-        });
+        if (!this.props.roomId) {
+            fetch(this.props.apiHost + "/lobby", {
+                method: "get"
+            }).then(function (res) {
+                return res.json();
+            }).then(function (rawLobbies) {
+                return _this.setState({ lobbies: rawLobbies.map(function (rawLobby) {
+                        return new model_1.Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent]);
+                    }) }, function () {
+                    return console.log("Loading");
+                });
+            })["catch"](function (err) {
+                return console.log(err);
+            });
+        }
     };
     LobbyView.prototype.render = function () {
         return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
             return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users)));
-        })));
+        })), this.redirectToGame());
     };
     return LobbyView;
 }(react_1.Component);

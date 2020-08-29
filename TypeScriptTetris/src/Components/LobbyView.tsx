@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { Lobby, User } from './model';
+import { Redirect } from 'react-router-dom';
 
 interface IProps {
     apiHost: string
     username: string
+    setRoomId: (roomId: string | undefined) => void
+    roomId: string | undefined
 }
 
 interface IState {
@@ -13,16 +16,18 @@ interface IState {
 //This should set up the lobby stuff. Views all lobbies. Lets join one and create a new lobby
 export class LobbyView extends Component<IProps, IState> {
     state: IState = {
-        lobbies: []
+        lobbies: [],
     }
 
     componentDidMount() {
-        fetch(`${this.props.apiHost}/lobby`, {
-            method: "get"
-        })
-            .then(res => res.json())
-            .then(rawLobbies => this.setState({ lobbies: rawLobbies.map((rawLobby: any) => new Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) }))
-            .catch(err => console.log(err));
+        if (!this.props.roomId) {
+            fetch(`${this.props.apiHost}/lobby`, {
+                method: "get"
+            })
+                .then(res => res.json())
+                .then(rawLobbies => this.setState({ lobbies: rawLobbies.map((rawLobby: any) => new Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) }, () => console.log("Loading")))
+                .catch(err => console.log(err));
+        }
     }
 
     createLobby = () => {
@@ -34,8 +39,12 @@ export class LobbyView extends Component<IProps, IState> {
             body: `host=${this.props.username}`
         })
             .then(res => res.json())
-            .then(rawLobby => this.setState({ lobbies: this.state.lobbies.concat(new Lobby(1, 2, rawLobby.id, [rawLobby.host, rawLobby.opponent])) }));
+            .then(rawLobby => {
+                this.props.setRoomId(rawLobby.id);
+            });
     }
+
+    redirectToGame = () => this.props.roomId ? <Redirect to="/play" /> : null;
 
     render(): React.ReactNode {
         return (
@@ -58,6 +67,7 @@ export class LobbyView extends Component<IProps, IState> {
                         </>
                     ))}
                 </div>
+                {this.redirectToGame()}
             </>
         )
     }
