@@ -44,6 +44,10 @@ export class LobbyView extends Component<IProps, IState> {
             });
     }
 
+    joinGame = (roomId: string) => {
+        this.props.setRoomId(roomId);
+    }
+
     redirectToGame = () => this.props.roomId ? <Redirect to="/play" /> : null;
 
     render(): React.ReactNode {
@@ -63,6 +67,7 @@ export class LobbyView extends Component<IProps, IState> {
                             <br />
                             <ul>All users in lobby:
                             <li>{lobby.users}</li>
+                                <button onClick={() => this.joinGame(lobby.id)}>Join Lobby</button>
                             </ul>
                         </>
                     ))}

@@ -8,7 +8,8 @@ const roomSample = {
     host: "host",
     opponent: "opponent",
     isPlaying: false,
-    isFinished: false
+    isFinished: false,
+    sockets: []
 };
 
 // create a new room
@@ -18,12 +19,20 @@ const makeRoom = (req, res) => {
         host: req.body.host,
         opponent: null,
         isPlaying: false,
-        isFinished: false
+        isFinished: false,
+        sockets: []
     }
     lobbies.push(room);
     counter++;
     res.json(room);
 };
+
+const addSocketToRoom = (req, res) => {
+    if (req.body.socketId && req.body.lobbyId) {
+        lobbies.filter(lobby => lobby.id === parseInt(req.body.lobbyId))[0].sockets.push(req.body.socketId);
+        res.send("Cool");
+    }
+}
 
 // get all lobbies
 const getLobbies = (req, res) => {
@@ -86,6 +95,10 @@ const finishGame = (req, res) => {
     res.json(lobbies);
 };
 
+const getLobbyArray = () => {
+    return lobbies;
+}
+
 module.exports = {
     makeRoom,
     getLobbies,
@@ -94,4 +107,6 @@ module.exports = {
     joinOpenLobby,
     startGame,
     finishGame,
+    addSocketToRoom,
+    getLobbyArray
 }

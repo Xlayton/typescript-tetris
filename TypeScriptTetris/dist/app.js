@@ -248,29 +248,50 @@ var GameView = function (_super) {
     GameView.prototype.componentDidMount = function () {
         var _this = this;
         if (this.props.roomId) {
-            var socket_1 = socket_io_client_1["default"]("" + this.props.apiUrl, {
+            this.socket = socket_io_client_1["default"]("" + this.props.apiUrl, {
                 path: "/gameio"
             });
-            socket_1.on("connect", function () {
-                return console.log("Client connected:", socket_1.id);
-            });
-            socket_1.on("message", function (data) {
-                return console.log("Recieved Message:", data);
-            });
-            socket_1.on("startgame", function () {
-                _this.setState({ isStarted: true }, function () {
-                    return app_1.startGame();
+            this.socket.on("connect", function () {
+                fetch(_this.props.apiUrl + "/addsocket", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "lobbyId=" + _this.props.roomId + "&socketId=" + _this.socket.id
+                }).then(function () {
+                    return _this.socket.emit("connectedsocket");
                 });
+            });
+            this.socket.on("startgame", function () {
+                _this.setState({ isStarted: true }, function () {
+                    app_1.game.togglePause();
+                    app_1.dummyGame.togglePause();
+                    app_1.game.on("update", function () {
+                        return _this.socket.emit("gamedata", [app_1.game.serialize()]);
+                    });
+                    app_1.game.newGame();
+                });
+            });
+            app_1.startGame();
+            app_1.game.togglePause();
+            app_1.dummyGame.togglePause();
+            this.socket.on("loaddata", function (data) {
+                return app_1.dummyGame.deserialize(data[0]);
+            });
+            this.socket.on("winner", function () {
+                app_1.game.youWin();
+                app_1.dummyGame.togglePause();
             });
         }
     };
     GameView.prototype.componentWillUnmount = function () {
         if (this.props.roomId) {
+            this.socket.disconnect();
             this.props.setRoomId(undefined);
         }
     };
     GameView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, this.redirectIfNoRoomId(), react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Keys:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape"), react_1["default"].createElement("li", null, "P - pause / resume game"), react_1["default"].createElement("li", null, "F - faster"), react_1["default"].createElement("li", null, "F2 - start new game")), react_1["default"].createElement("div", null, "Score: ", react_1["default"].createElement("span", { id: "scoreLabel" })), react_1["default"].createElement("div", null, "Level: ", react_1["default"].createElement("span", { id: "levelLabel" })), react_1["default"].createElement("div", null, "Rows: ", react_1["default"].createElement("span", { id: "rowsLabel" }))));
+        return react_1["default"].createElement(react_1["default"].Fragment, null, this.redirectIfNoRoomId(), react_1["default"].createElement("div", { id: "controlledGame" }, react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Keys:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape"), react_1["default"].createElement("li", null, "P - pause / resume game"), react_1["default"].createElement("li", null, "F - faster"), react_1["default"].createElement("li", null, "F2 - start new game")), react_1["default"].createElement("div", null, "Score: ", react_1["default"].createElement("span", { id: "scoreLabel" })), react_1["default"].createElement("div", null, "Level: ", react_1["default"].createElement("span", { id: "levelLabel" })), react_1["default"].createElement("div", null, "Rows: ", react_1["default"].createElement("span", { id: "rowsLabel" })))), react_1["default"].createElement("div", { id: "dummyGame" }, react_1["default"].createElement("canvas", { id: "dummyCanvas", width: "240", height: "360" })));
     };
     return GameView;
 }(react_1.Component);
@@ -429,6 +450,9 @@ var LobbyView = function (_super) {
                 _this.props.setRoomId(rawLobby.id);
             });
         };
+        _this.joinGame = function (roomId) {
+            _this.props.setRoomId(roomId);
+        };
         _this.redirectToGame = function () {
             return _this.props.roomId ? react_1["default"].createElement(react_router_dom_1.Redirect, { to: "/play" }) : null;
         };
@@ -453,8 +477,11 @@ var LobbyView = function (_super) {
         }
     };
     LobbyView.prototype.render = function () {
+        var _this = this;
         return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
-            return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users)));
+            return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users), react_1["default"].createElement("button", { onClick: function onClick() {
+                    return _this.joinGame(lobby.id);
+                } }, "Join Lobby")));
         })), this.redirectToGame());
     };
     return LobbyView;
@@ -531,6 +558,25 @@ exports.User = User;
 "use strict";
 
 
+var __extends = undefined && undefined.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
 exports.__esModule = true;
 exports.Game = void 0;
 var Grid_1 = __webpack_require__(/*! ./Grid */ "./build-babel/Game/Grid.js");
@@ -540,25 +586,43 @@ var LShape_1 = __webpack_require__(/*! ./LShape */ "./build-babel/Game/LShape.js
 var SquareShape_1 = __webpack_require__(/*! ./SquareShape */ "./build-babel/Game/SquareShape.js");
 var StepShape_1 = __webpack_require__(/*! ./StepShape */ "./build-babel/Game/StepShape.js");
 var TShape_1 = __webpack_require__(/*! ./TShape */ "./build-babel/Game/TShape.js");
-var Game = function () {
-    function Game() {
-        this.running = false;
-        this.phase = Game.gameState.initial;
-        this.scoreLabel = document.getElementById('scoreLabel');
-        this.rowsLabel = document.getElementById('rowsLabel');
-        this.levelLabel = document.getElementById('levelLabel');
-        this.messageLabel = document.getElementById('floatingMessage');
-        this.canvas = document.getElementById('gameCanvas');
-        this.context = this.canvas.getContext("2d");
-        this.grid = new Grid_1.Grid(16, 10, 20, 'gray', this.canvas);
-        this.grid.eraseGrid();
-        this.speed = 1000;
-        var x = this;
-        document.onkeydown = function (e) {
-            x.keyhandler(e);
-        };
-        this.showMessage("Press F2 to start");
+var events_1 = __webpack_require__(/*! events */ "./node_modules/events/events.js");
+var Game = function (_super) {
+    __extends(Game, _super);
+    function Game(canvasId, hasKeyControls) {
+        var _this = _super.call(this) || this;
+        _this.running = false;
+        _this.phase = Game.gameState.initial;
+        _this.messageLabel = document.getElementById('floatingMessage');
+        _this.canvas = document.getElementById(canvasId);
+        _this.context = _this.canvas.getContext("2d");
+        _this.grid = new Grid_1.Grid(16, 10, 20, 'gray', _this.canvas);
+        _this.grid.eraseGrid();
+        _this.speed = 1000;
+        var x = _this;
+        if (hasKeyControls) {
+            document.onkeydown = function (e) {
+                x.keyhandler(e);
+            };
+        } else {
+            _this.newGame();
+        }
+        return _this;
     }
+    Game.prototype.serialize = function () {
+        return JSON.stringify({
+            gridColors: this.grid.blockColor,
+            state: this.phase,
+            currentShape: this.currentShape
+        });
+    };
+    Game.prototype.deserialize = function (data) {
+        var parse = JSON.parse(data);
+        this.grid.blockColor = parse.gridColors;
+        this.phase = parse.state;
+        this.currentShape = parse.currentShape;
+        return this;
+    };
     Game.prototype.draw = function () {
         if (this.phase == Game.gameState.playing) {
             this.grid.paint();
@@ -574,9 +638,7 @@ var Game = function () {
         this.messageLabel.style.display = 'none';
         this.grid.clearGrid();
         this.currentShape = this.newShape();
-        this.score = 0;
         this.rowsCompleted = 0;
-        this.score = 0;
         this.level = -1;
         this.speed = 1000;
         this.phase = Game.gameState.playing;
@@ -586,11 +648,7 @@ var Game = function () {
             };
         }(this));
         this.incrementLevel();
-    };
-    Game.prototype.updateLabels = function () {
-        this.scoreLabel.innerText = this.score.toString();
-        this.rowsLabel.innerText = this.rowsCompleted.toString();
-        this.levelLabel.innerText = this.level.toString();
+        this.emit("update");
     };
     Game.prototype.gameTimer = function () {
         if (this.phase == Game.gameState.playing) {
@@ -601,6 +659,7 @@ var Game = function () {
                 this.shapeFinished();
             }
         }
+        this.emit("update");
     };
     Game.prototype.keyhandler = function (event) {
         var points;
@@ -636,8 +695,6 @@ var Game = function () {
         }
         if (event.keyCode == 113) {
             this.newGame();
-        } else if (event.keyCode == 80) {
-            this.togglePause();
         } else if (event.keyCode == 70) {
             if (this.level < 10 && this.phase == Game.gameState.playing || this.phase == Game.gameState.paused) {
                 this.incrementLevel();
@@ -651,7 +708,7 @@ var Game = function () {
             this.draw();
         } else if (this.phase == Game.gameState.playing) {
             this.phase = Game.gameState.paused;
-            this.showMessage("PAUSED");
+            this.showMessage("WAITING FOR PLAYER");
         }
     };
     Game.prototype.showMessage = function (message) {
@@ -669,18 +726,15 @@ var Game = function () {
                 };
             }(this), this.speed);
         }
-        this.updateLabels();
     };
     Game.prototype.shapeFinished = function () {
         if (this.grid.addShape(this.currentShape)) {
             this.grid.draw(this.currentShape);
             var completed = this.grid.checkRows(this.currentShape);
             this.rowsCompleted += completed;
-            this.score += completed * (this.level + 1) * 10;
             if (this.rowsCompleted > (this.level + 1) * 10) {
                 this.incrementLevel();
             }
-            this.updateLabels();
             this.currentShape = this.newShape();
         } else {
             if (window.console) console.log("Game over");
@@ -688,6 +742,10 @@ var Game = function () {
             this.showMessage("GAME OVER\nPress F2 to Start");
             clearTimeout(this.timerToken);
         }
+    };
+    Game.prototype.youWin = function () {
+        this.phase = Game.gameState.gameover;
+        this.showMessage("YOU WIN!");
     };
     Game.prototype.newShape = function () {
         var randomShape = Math.floor(Math.random() * 7);
@@ -719,7 +777,7 @@ var Game = function () {
     };
     Game.gameState = { initial: 0, playing: 1, paused: 2, gameover: 3 };
     return Game;
-}();
+}(events_1.EventEmitter);
 exports.Game = Game;
 //# sourceMappingURL=Game.js.map
 //# sourceMappingURL=Game.js.map
@@ -1343,7 +1401,7 @@ exports.TShape = TShape;
 
 
 exports.__esModule = true;
-exports.startGame = exports.requestAnimFrame = void 0;
+exports.startGame = exports.dummyGame = exports.game = exports.requestAnimFrame = void 0;
 var Game_1 = __webpack_require__(/*! ./Game */ "./build-babel/Game/Game.js");
 exports.requestAnimFrame = function () {
     return window.requestAnimationFrame || window.requestAnimationFrame || function (callback) {
@@ -1351,7 +1409,8 @@ exports.requestAnimFrame = function () {
     };
 }();
 exports.startGame = function () {
-    var game = new Game_1.Game();
+    exports.game = new Game_1.Game("gameCanvas", true);
+    exports.dummyGame = new Game_1.Game("dummyCanvas", false);
 };
 //# sourceMappingURL=app.js.map
 //# sourceMappingURL=app.js.map
@@ -9852,6 +9911,494 @@ module.exports = {
 	encode: utf8encode,
 	decode: utf8decode
 };
+
+
+/***/ }),
+
+/***/ "./node_modules/events/events.js":
+/*!***************************************!*\
+  !*** ./node_modules/events/events.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+var R = typeof Reflect === 'object' ? Reflect : null
+var ReflectApply = R && typeof R.apply === 'function'
+  ? R.apply
+  : function ReflectApply(target, receiver, args) {
+    return Function.prototype.apply.call(target, receiver, args);
+  }
+
+var ReflectOwnKeys
+if (R && typeof R.ownKeys === 'function') {
+  ReflectOwnKeys = R.ownKeys
+} else if (Object.getOwnPropertySymbols) {
+  ReflectOwnKeys = function ReflectOwnKeys(target) {
+    return Object.getOwnPropertyNames(target)
+      .concat(Object.getOwnPropertySymbols(target));
+  };
+} else {
+  ReflectOwnKeys = function ReflectOwnKeys(target) {
+    return Object.getOwnPropertyNames(target);
+  };
+}
+
+function ProcessEmitWarning(warning) {
+  if (console && console.warn) console.warn(warning);
+}
+
+var NumberIsNaN = Number.isNaN || function NumberIsNaN(value) {
+  return value !== value;
+}
+
+function EventEmitter() {
+  EventEmitter.init.call(this);
+}
+module.exports = EventEmitter;
+module.exports.once = once;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._eventsCount = 0;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+var defaultMaxListeners = 10;
+
+function checkListener(listener) {
+  if (typeof listener !== 'function') {
+    throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
+  }
+}
+
+Object.defineProperty(EventEmitter, 'defaultMaxListeners', {
+  enumerable: true,
+  get: function() {
+    return defaultMaxListeners;
+  },
+  set: function(arg) {
+    if (typeof arg !== 'number' || arg < 0 || NumberIsNaN(arg)) {
+      throw new RangeError('The value of "defaultMaxListeners" is out of range. It must be a non-negative number. Received ' + arg + '.');
+    }
+    defaultMaxListeners = arg;
+  }
+});
+
+EventEmitter.init = function() {
+
+  if (this._events === undefined ||
+      this._events === Object.getPrototypeOf(this)._events) {
+    this._events = Object.create(null);
+    this._eventsCount = 0;
+  }
+
+  this._maxListeners = this._maxListeners || undefined;
+};
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
+  if (typeof n !== 'number' || n < 0 || NumberIsNaN(n)) {
+    throw new RangeError('The value of "n" is out of range. It must be a non-negative number. Received ' + n + '.');
+  }
+  this._maxListeners = n;
+  return this;
+};
+
+function _getMaxListeners(that) {
+  if (that._maxListeners === undefined)
+    return EventEmitter.defaultMaxListeners;
+  return that._maxListeners;
+}
+
+EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
+  return _getMaxListeners(this);
+};
+
+EventEmitter.prototype.emit = function emit(type) {
+  var args = [];
+  for (var i = 1; i < arguments.length; i++) args.push(arguments[i]);
+  var doError = (type === 'error');
+
+  var events = this._events;
+  if (events !== undefined)
+    doError = (doError && events.error === undefined);
+  else if (!doError)
+    return false;
+
+  // If there is no 'error' event listener then throw.
+  if (doError) {
+    var er;
+    if (args.length > 0)
+      er = args[0];
+    if (er instanceof Error) {
+      // Note: The comments on the `throw` lines are intentional, they show
+      // up in Node's output if this results in an unhandled exception.
+      throw er; // Unhandled 'error' event
+    }
+    // At least give some kind of context to the user
+    var err = new Error('Unhandled error.' + (er ? ' (' + er.message + ')' : ''));
+    err.context = er;
+    throw err; // Unhandled 'error' event
+  }
+
+  var handler = events[type];
+
+  if (handler === undefined)
+    return false;
+
+  if (typeof handler === 'function') {
+    ReflectApply(handler, this, args);
+  } else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      ReflectApply(listeners[i], this, args);
+  }
+
+  return true;
+};
+
+function _addListener(target, type, listener, prepend) {
+  var m;
+  var events;
+  var existing;
+
+  checkListener(listener);
+
+  events = target._events;
+  if (events === undefined) {
+    events = target._events = Object.create(null);
+    target._eventsCount = 0;
+  } else {
+    // To avoid recursion in the case that type === "newListener"! Before
+    // adding it to the listeners, first emit "newListener".
+    if (events.newListener !== undefined) {
+      target.emit('newListener', type,
+                  listener.listener ? listener.listener : listener);
+
+      // Re-assign `events` because a newListener handler could have caused the
+      // this._events to be assigned to a new object
+      events = target._events;
+    }
+    existing = events[type];
+  }
+
+  if (existing === undefined) {
+    // Optimize the case of one listener. Don't need the extra array object.
+    existing = events[type] = listener;
+    ++target._eventsCount;
+  } else {
+    if (typeof existing === 'function') {
+      // Adding the second element, need to change to array.
+      existing = events[type] =
+        prepend ? [listener, existing] : [existing, listener];
+      // If we've already got an array, just append.
+    } else if (prepend) {
+      existing.unshift(listener);
+    } else {
+      existing.push(listener);
+    }
+
+    // Check for listener leak
+    m = _getMaxListeners(target);
+    if (m > 0 && existing.length > m && !existing.warned) {
+      existing.warned = true;
+      // No error code for this since it is a Warning
+      // eslint-disable-next-line no-restricted-syntax
+      var w = new Error('Possible EventEmitter memory leak detected. ' +
+                          existing.length + ' ' + String(type) + ' listeners ' +
+                          'added. Use emitter.setMaxListeners() to ' +
+                          'increase limit');
+      w.name = 'MaxListenersExceededWarning';
+      w.emitter = target;
+      w.type = type;
+      w.count = existing.length;
+      ProcessEmitWarning(w);
+    }
+  }
+
+  return target;
+}
+
+EventEmitter.prototype.addListener = function addListener(type, listener) {
+  return _addListener(this, type, listener, false);
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.prependListener =
+    function prependListener(type, listener) {
+      return _addListener(this, type, listener, true);
+    };
+
+function onceWrapper() {
+  if (!this.fired) {
+    this.target.removeListener(this.type, this.wrapFn);
+    this.fired = true;
+    if (arguments.length === 0)
+      return this.listener.call(this.target);
+    return this.listener.apply(this.target, arguments);
+  }
+}
+
+function _onceWrap(target, type, listener) {
+  var state = { fired: false, wrapFn: undefined, target: target, type: type, listener: listener };
+  var wrapped = onceWrapper.bind(state);
+  wrapped.listener = listener;
+  state.wrapFn = wrapped;
+  return wrapped;
+}
+
+EventEmitter.prototype.once = function once(type, listener) {
+  checkListener(listener);
+  this.on(type, _onceWrap(this, type, listener));
+  return this;
+};
+
+EventEmitter.prototype.prependOnceListener =
+    function prependOnceListener(type, listener) {
+      checkListener(listener);
+      this.prependListener(type, _onceWrap(this, type, listener));
+      return this;
+    };
+
+// Emits a 'removeListener' event if and only if the listener was removed.
+EventEmitter.prototype.removeListener =
+    function removeListener(type, listener) {
+      var list, events, position, i, originalListener;
+
+      checkListener(listener);
+
+      events = this._events;
+      if (events === undefined)
+        return this;
+
+      list = events[type];
+      if (list === undefined)
+        return this;
+
+      if (list === listener || list.listener === listener) {
+        if (--this._eventsCount === 0)
+          this._events = Object.create(null);
+        else {
+          delete events[type];
+          if (events.removeListener)
+            this.emit('removeListener', type, list.listener || listener);
+        }
+      } else if (typeof list !== 'function') {
+        position = -1;
+
+        for (i = list.length - 1; i >= 0; i--) {
+          if (list[i] === listener || list[i].listener === listener) {
+            originalListener = list[i].listener;
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0)
+          return this;
+
+        if (position === 0)
+          list.shift();
+        else {
+          spliceOne(list, position);
+        }
+
+        if (list.length === 1)
+          events[type] = list[0];
+
+        if (events.removeListener !== undefined)
+          this.emit('removeListener', type, originalListener || listener);
+      }
+
+      return this;
+    };
+
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+
+EventEmitter.prototype.removeAllListeners =
+    function removeAllListeners(type) {
+      var listeners, events, i;
+
+      events = this._events;
+      if (events === undefined)
+        return this;
+
+      // not listening for removeListener, no need to emit
+      if (events.removeListener === undefined) {
+        if (arguments.length === 0) {
+          this._events = Object.create(null);
+          this._eventsCount = 0;
+        } else if (events[type] !== undefined) {
+          if (--this._eventsCount === 0)
+            this._events = Object.create(null);
+          else
+            delete events[type];
+        }
+        return this;
+      }
+
+      // emit removeListener for all listeners on all events
+      if (arguments.length === 0) {
+        var keys = Object.keys(events);
+        var key;
+        for (i = 0; i < keys.length; ++i) {
+          key = keys[i];
+          if (key === 'removeListener') continue;
+          this.removeAllListeners(key);
+        }
+        this.removeAllListeners('removeListener');
+        this._events = Object.create(null);
+        this._eventsCount = 0;
+        return this;
+      }
+
+      listeners = events[type];
+
+      if (typeof listeners === 'function') {
+        this.removeListener(type, listeners);
+      } else if (listeners !== undefined) {
+        // LIFO order
+        for (i = listeners.length - 1; i >= 0; i--) {
+          this.removeListener(type, listeners[i]);
+        }
+      }
+
+      return this;
+    };
+
+function _listeners(target, type, unwrap) {
+  var events = target._events;
+
+  if (events === undefined)
+    return [];
+
+  var evlistener = events[type];
+  if (evlistener === undefined)
+    return [];
+
+  if (typeof evlistener === 'function')
+    return unwrap ? [evlistener.listener || evlistener] : [evlistener];
+
+  return unwrap ?
+    unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
+}
+
+EventEmitter.prototype.listeners = function listeners(type) {
+  return _listeners(this, type, true);
+};
+
+EventEmitter.prototype.rawListeners = function rawListeners(type) {
+  return _listeners(this, type, false);
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  if (typeof emitter.listenerCount === 'function') {
+    return emitter.listenerCount(type);
+  } else {
+    return listenerCount.call(emitter, type);
+  }
+};
+
+EventEmitter.prototype.listenerCount = listenerCount;
+function listenerCount(type) {
+  var events = this._events;
+
+  if (events !== undefined) {
+    var evlistener = events[type];
+
+    if (typeof evlistener === 'function') {
+      return 1;
+    } else if (evlistener !== undefined) {
+      return evlistener.length;
+    }
+  }
+
+  return 0;
+}
+
+EventEmitter.prototype.eventNames = function eventNames() {
+  return this._eventsCount > 0 ? ReflectOwnKeys(this._events) : [];
+};
+
+function arrayClone(arr, n) {
+  var copy = new Array(n);
+  for (var i = 0; i < n; ++i)
+    copy[i] = arr[i];
+  return copy;
+}
+
+function spliceOne(list, index) {
+  for (; index + 1 < list.length; index++)
+    list[index] = list[index + 1];
+  list.pop();
+}
+
+function unwrapListeners(arr) {
+  var ret = new Array(arr.length);
+  for (var i = 0; i < ret.length; ++i) {
+    ret[i] = arr[i].listener || arr[i];
+  }
+  return ret;
+}
+
+function once(emitter, name) {
+  return new Promise(function (resolve, reject) {
+    function eventListener() {
+      if (errorListener !== undefined) {
+        emitter.removeListener('error', errorListener);
+      }
+      resolve([].slice.call(arguments));
+    };
+    var errorListener;
+
+    // Adding an error listener is not optional because
+    // if an error is thrown on an event emitter we cannot
+    // guarantee that the actual event we are waiting will
+    // be fired. The result could be a silent way to create
+    // memory or file descriptor leaks, which is something
+    // we should avoid.
+    if (name !== 'error') {
+      errorListener = function errorListener(err) {
+        emitter.removeListener(name, eventListener);
+        reject(err);
+      };
+
+      emitter.once('error', errorListener);
+    }
+
+    emitter.once(name, eventListener);
+  });
+}
 
 
 /***/ }),

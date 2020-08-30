@@ -11,7 +11,11 @@ export const requestAnimFrame = (() => {
         };
 })();
 
+export let game: Game;
+export let dummyGame: Game;
+
 export const startGame = (() => {
-    const game = new Game();
+    game = new Game("gameCanvas", true);
+    dummyGame = new Game("dummyCanvas", false);
 });
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { startGame } from '../Game/app';
+import { startGame, dummyGame, game } from '../Game/app';
 import io from 'socket.io-client';
 import { Redirect } from 'react-router-dom';
+import { Game } from '../Game/Game';
 
 interface IProps {
     roomId: string | undefined
@@ -15,25 +16,49 @@ interface IState {
 
 export class GameView extends Component<IProps, IState> {
 
+    socket: SocketIOClient.Socket
+
     state: IState = {
-        isStarted: false
+        isStarted: false,
     }
 
     componentDidMount() {
         if (this.props.roomId) {
-            const socket = io(`${this.props.apiUrl}`, {
+            this.socket = io(`${this.props.apiUrl}`, {
                 path: "/gameio",
             });
-            socket.on("connect", () => console.log("Client connected:", socket.id))
-            socket.on("message", (data: any) => console.log("Recieved Message:", data))
-            socket.on("startgame", () => {
-                this.setState({ isStarted: true }, () => startGame())
+            this.socket.on("connect", () => {
+                fetch(`${this.props.apiUrl}/addsocket`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `lobbyId=${this.props.roomId}&socketId=${this.socket.id}`
+                })
+                    .then(() => this.socket.emit("connectedsocket"))
+            });
+            this.socket.on("startgame", () => {
+                this.setState({ isStarted: true }, () => {
+                    game.togglePause();
+                    dummyGame.togglePause();
+                    game.on("update", () => this.socket.emit("gamedata", [game.serialize()]));
+                    game.newGame();
+                });
+            });
+            startGame();
+            game.togglePause();
+            dummyGame.togglePause();
+            this.socket.on("loaddata", (data: any) => dummyGame.deserialize(data[0]));
+            this.socket.on("winner", () => {
+                game.youWin();
+                dummyGame.togglePause();
             })
         }
     }
 
     componentWillUnmount() {
         if (this.props.roomId) {
+            this.socket.disconnect();
             this.props.setRoomId(undefined);
         }
     }
@@ -41,28 +66,34 @@ export class GameView extends Component<IProps, IState> {
     redirectIfNoRoomId = () => {
         !this.props.roomId ? <Redirect to="/" /> : null
     }
+
     render(): React.ReactNode {
         return (
             <>
                 {this.redirectIfNoRoomId()}
-                <div id="container">
-                    <canvas id="gameCanvas" width="240" height="360"></canvas>
-                    <div id="floatingMessage"></div>
+                <div id="controlledGame">
+                    <div id="container">
+                        <canvas id="gameCanvas" width="240" height="360"></canvas>
+                        <div id="floatingMessage"></div>
+                    </div>
+                    <div className="instructions">
+                        <b>Keys:</b>
+                        <ul>
+                            <li>Left Arrow - Move shape left</li>
+                            <li>Right Arrow - Move shape right</li>
+                            <li>Up Arrow - Rotate shape</li>
+                            <li>Down Arrow - Drop shape</li>
+                            <li>P - pause / resume game</li>
+                            <li>F - faster</li>
+                            <li>F2 - start new game</li>
+                        </ul>
+                        <div>Score: <span id="scoreLabel"></span></div>
+                        <div>Level: <span id="levelLabel"></span></div>
+                        <div>Rows: <span id="rowsLabel"></span></div>
+                    </div>
                 </div>
-                <div className="instructions">
-                    <b>Keys:</b>
-                    <ul>
-                        <li>Left Arrow - Move shape left</li>
-                        <li>Right Arrow - Move shape right</li>
-                        <li>Up Arrow - Rotate shape</li>
-                        <li>Down Arrow - Drop shape</li>
-                        <li>P - pause / resume game</li>
-                        <li>F - faster</li>
-                        <li>F2 - start new game</li>
-                    </ul>
-                    <div>Score: <span id="scoreLabel"></span></div>
-                    <div>Level: <span id="levelLabel"></span></div>
-                    <div>Rows: <span id="rowsLabel"></span></div>
+                <div id="dummyGame">
+                    <canvas id="dummyCanvas" width="240" height="360"></canvas>
                 </div>
             </>
         )
