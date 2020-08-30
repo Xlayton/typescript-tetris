@@ -451,6 +451,7 @@ var LobbyView = function (_super) {
             });
         };
         _this.joinGame = function (roomId) {
+            console.log(roomId);
             _this.props.setRoomId(roomId);
         };
         _this.redirectToGame = function () {
@@ -478,7 +479,7 @@ var LobbyView = function (_super) {
     };
     LobbyView.prototype.render = function () {
         var _this = this;
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("button", { type: "button" }, "Join Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
+        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
             return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users), react_1["default"].createElement("button", { onClick: function onClick() {
                     return _this.joinGame(lobby.id);
                 } }, "Join Lobby")));

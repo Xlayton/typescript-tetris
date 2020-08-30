@@ -45,6 +45,7 @@ export class LobbyView extends Component<IProps, IState> {
     }
 
     joinGame = (roomId: string) => {
+        console.log(roomId);
         this.props.setRoomId(roomId);
     }
 
@@ -54,8 +55,6 @@ export class LobbyView extends Component<IProps, IState> {
         return (
             <>
                 <button type="button" onClick={this.createLobby}>Create Lobby</button>
-                <button type="button">Join Lobby</button>
-
                 <div>
                     {this.state.lobbies.map(lobby => (
                         <>

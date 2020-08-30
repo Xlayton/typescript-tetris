@@ -1,6 +1,6 @@
 // lobby setup, get active lobbies, delete bad lobbies
 let lobbies = [];
-let counter = 0;
+let counter = 1;
 
 // this is for seeing the structure of the object
 const roomSample = {
