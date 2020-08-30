@@ -7,7 +7,7 @@ export class Grid {
     private rows: number;
     public cols: number;
     public blockSize: number;
-    private blockColor: any[][];
+    public blockColor: any[][];
     public backColor: any;
     private xOffset: number;
     private yOffset: number;

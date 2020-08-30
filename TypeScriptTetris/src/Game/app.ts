@@ -11,13 +11,11 @@ export const requestAnimFrame = (() => {
         };
 })();
 
+export let game: Game;
+export let dummyGame: Game;
+
 export const startGame = (() => {
-    "use strict";
-
-    function init() {
-        const game = new Game();
-    }
-
-    window.addEventListener('DOMContentLoaded', init, false);
+    game = new Game("gameCanvas", true);
+    dummyGame = new Game("dummyCanvas", false);
 });
 
