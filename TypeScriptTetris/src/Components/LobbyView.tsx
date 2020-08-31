@@ -54,20 +54,30 @@ export class LobbyView extends Component<IProps, IState> {
     render(): React.ReactNode {
         return (
             <>
-                <button type="button" onClick={this.createLobby}>Create Lobby</button>
+            <h1 id="lobbyTitle">Current Lobbies</h1>
+                <button className="lobbyButton createButton" type="button" onClick={this.createLobby}>Create Lobby</button>
                 <div>
                     {this.state.lobbies.map(lobby => (
                         <>
-                            <p>Id of Lobby: {lobby.id}</p>
+                        <ul>
+                            <li className="lobbyInfo">Id of Lobby: {lobby.id}</li>
+
+                            <li className="lobbyInfo">Max number of players: {lobby.maxPlayers}</li>
+
+                            <li className="lobbyInfo">Current amount of players: {lobby.playerCount}</li>
+
+                        </ul>
+                            <button className="lobbyButton joinButton" onClick={() => this.joinGame(lobby.id)}>Join Lobby</button>
+
+                            {/* <p className="lobbyInfo">Id of Lobby: {lobby.id}</p>
                             <br />
-                            <p>Max number of players: {lobby.maxPlayers}</p>
+                            <p className="lobbyInfo">Max number of players: {lobby.maxPlayers}</p>
                             <br />
-                            <p>Current amount of players: {lobby.playerCount}</p>
-                            <br />
-                            <ul>All users in lobby:
-                            <li>{lobby.users}</li>
-                                <button onClick={() => this.joinGame(lobby.id)}>Join Lobby</button>
-                            </ul>
+                            <p className="lobbyInfo">Current amount of players: {lobby.playerCount}</p>
+                            <br /> */}
+                            {/* <ul>All users in lobby:
+                            <li>{lobby.users}</li>  
+                            </ul> */}
                         </>
                     ))}
                 </div>

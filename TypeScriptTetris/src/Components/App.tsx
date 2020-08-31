@@ -25,15 +25,15 @@ export class App extends Component<IProps, IState> {
     render(): React.ReactNode {
         return (
             <Router>
-                <NavLink to="/lobby">Lobby Page</NavLink>
-                <NavLink to="/">Home</NavLink>
-                <div id="pageRoute">
+                <NavLink className="pageRoute" to="/">Home</NavLink>
+                <NavLink className="pageRoute" to="/lobby">Lobby Page</NavLink>
+                <div>
                     <Route exact path="/play" component={() => <GameView roomId={this.state.roomId} apiUrl={App.apiUrl} setRoomId={this.setRoomId} />} />
                 </div>
-                <div id="pageRoute">
+                <div>
                     <Route exact path="/lobby" component={() => <LobbyView apiHost={App.apiUrl} username="Testing..." setRoomId={this.setRoomId} roomId={this.state.roomId} />} />
                 </div>
-                <div id="pageRoute">
+                <div>
                     <Route exact path="/" component={HomeView} />
                 </div>
             </Router>

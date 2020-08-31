@@ -31,7 +31,7 @@ export class Game extends EventEmitter {
         super();
         this.canvas = (document.getElementById(canvasId) as HTMLCanvasElement);
         this.context = this.canvas.getContext("2d");
-        this.grid = new Grid(16, 10, 20, 'gray', this.canvas);
+        this.grid = new Grid(16, 10, 20, 'black', this.canvas);
         this.grid.eraseGrid();
         this.speed = 1000;
         const x = this;

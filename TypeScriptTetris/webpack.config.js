@@ -16,7 +16,7 @@ module.exports = {
             template: path.resolve(__dirname, "src", "components", "index.html"),
         }),
         new MiniCssExtractPlugin({
-            filename: "./src/yourfile.css",
+            filename: "./src/app.css",
         }),
     ]
 };

@@ -13,7 +13,7 @@ export class HomeView extends Component<IProps, IState> {
     render(): React.ReactNode {
         return (
             <>
-                <h1>Home</h1>
+                <h1 id="homeScreen">Multiplayer Tetris</h1>
             </>
         )
     }
