@@ -269,6 +269,9 @@ var GameView = function (_super) {
                     app_1.game.on("update", function () {
                         return _this.socket.emit("gamedata", [app_1.game.serialize()]);
                     });
+                    app_1.game.on("gameover", function () {
+                        return _this.socket.emit("loser");
+                    });
                     app_1.game.newGame();
                 });
             });
@@ -462,7 +465,7 @@ var LobbyView = function (_super) {
     LobbyView.prototype.componentDidMount = function () {
         var _this = this;
         if (!this.props.roomId) {
-            fetch(this.props.apiHost + "/lobby", {
+            fetch(this.props.apiHost + "/lobby/open", {
                 method: "get"
             }).then(function (res) {
                 return res.json();
@@ -620,7 +623,9 @@ var Game = function (_super) {
     Game.prototype.deserialize = function (data) {
         var parse = JSON.parse(data);
         this.grid.blockColor = parse.gridColors;
-        this.phase = parse.state;
+        if (this.phase !== Game.gameState.gameover) {
+            this.phase = parse.state;
+        }
         this.currentShape = parse.currentShape;
         return this;
     };
@@ -742,9 +747,11 @@ var Game = function (_super) {
             this.phase = Game.gameState.gameover;
             this.showMessage("GAME OVER\nPress F2 to Start");
             clearTimeout(this.timerToken);
+            this.emit("gameover");
         }
     };
     Game.prototype.youWin = function () {
+        console.log("Winner");
         this.phase = Game.gameState.gameover;
         this.showMessage("YOU WIN!");
     };

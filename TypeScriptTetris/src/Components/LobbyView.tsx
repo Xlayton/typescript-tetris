@@ -21,7 +21,7 @@ export class LobbyView extends Component<IProps, IState> {
 
     componentDidMount() {
         if (!this.props.roomId) {
-            fetch(`${this.props.apiHost}/lobby`, {
+            fetch(`${this.props.apiHost}/lobby/open`, {
                 method: "get"
             })
                 .then(res => res.json())
@@ -54,19 +54,19 @@ export class LobbyView extends Component<IProps, IState> {
     render(): React.ReactNode {
         return (
             <>
-            <h1 id="lobbyTitle">Current Lobbies</h1>
+                <h1 id="lobbyTitle">Current Lobbies</h1>
                 <button className="lobbyButton createButton" type="button" onClick={this.createLobby}>Create Lobby</button>
                 <div>
                     {this.state.lobbies.map(lobby => (
                         <>
-                        <ul>
-                            <li className="lobbyInfo">Id of Lobby: {lobby.id}</li>
+                            <ul>
+                                <li className="lobbyInfo">Id of Lobby: {lobby.id}</li>
 
-                            <li className="lobbyInfo">Max number of players: {lobby.maxPlayers}</li>
+                                <li className="lobbyInfo">Max number of players: {lobby.maxPlayers}</li>
 
-                            <li className="lobbyInfo">Current amount of players: {lobby.playerCount}</li>
+                                <li className="lobbyInfo">Current amount of players: {lobby.playerCount}</li>
 
-                        </ul>
+                            </ul>
                             <button className="lobbyButton joinButton" onClick={() => this.joinGame(lobby.id)}>Join Lobby</button>
 
                             {/* <p className="lobbyInfo">Id of Lobby: {lobby.id}</p>

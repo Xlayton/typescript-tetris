@@ -99,6 +99,10 @@ const getLobbyArray = () => {
     return lobbies;
 }
 
+const setLobbyPlayState = (lobbyId, state) => {
+    lobbies.filter(lobby => lobby.id === lobbyId)[0].isPlaying = state;
+}
+
 module.exports = {
     makeRoom,
     getLobbies,
@@ -108,5 +112,6 @@ module.exports = {
     startGame,
     finishGame,
     addSocketToRoom,
-    getLobbyArray
+    getLobbyArray,
+    setLobbyPlayState
 }

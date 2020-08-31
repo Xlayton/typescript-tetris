@@ -54,7 +54,9 @@ export class Game extends EventEmitter {
     public deserialize(data: any): Game {
         let parse = JSON.parse(data);
         this.grid.blockColor = parse.gridColors;
-        this.phase = parse.state;
+        if (this.phase !== Game.gameState.gameover) {
+            this.phase = parse.state;
+        }
         this.currentShape = parse.currentShape;
         return this;
     }
@@ -205,10 +207,12 @@ export class Game extends EventEmitter {
             this.phase = Game.gameState.gameover;
             this.showMessage("GAME OVER\nPress F2 to Start");
             clearTimeout(this.timerToken);
+            this.emit("gameover")
         }
     }
 
     public youWin() {
+        console.log("Winner")
         this.phase = Game.gameState.gameover;
         this.showMessage("YOU WIN!")
     }
