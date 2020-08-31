@@ -48,7 +48,19 @@ io.on('connection', socket => {
         if (connLobby.length > 0) {
             connLobby.forEach(lobby => {
                 lobby.sockets.filter(so => so !== socket.id).forEach(other => {
-                    sockets.filter(s => s.id === other)[0].emit("winner")
+                    sockets.filter(s => s.id === other)[0].emit("winner");
+                    routes.setLobbyPlayState(lobby.id, false);
+                })
+            })
+        }
+    })
+    socket.on("loser", () => {
+        let connLobby = routes.getLobbyArray().filter(lobby => lobby.sockets.includes(socket.id));
+        if (connLobby.length > 0) {
+            connLobby.forEach(lobby => {
+                lobby.sockets.filter(so => so !== socket.id).forEach(other => {
+                    sockets.filter(s => s.id === other)[0].emit("winner");
+                    routes.setLobbyPlayState(lobby.id, false);
                 })
             })
         }
@@ -58,6 +70,7 @@ io.on('connection', socket => {
             if (lobby.sockets.length >= 2) {
                 sockets.filter(s => lobby.sockets.includes(s.id)).forEach(s => {
                     s.emit("startgame");
+                    routes.setLobbyPlayState(lobby.id, true);
                 })
             }
         })

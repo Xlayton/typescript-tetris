@@ -42,6 +42,7 @@ export class GameView extends Component<IProps, IState> {
                     game.togglePause();
                     dummyGame.togglePause();
                     game.on("update", () => this.socket.emit("gamedata", [game.serialize()]));
+                    game.on("gameover", () => this.socket.emit("loser"))
                     game.newGame();
                 });
             });
@@ -52,7 +53,7 @@ export class GameView extends Component<IProps, IState> {
             this.socket.on("winner", () => {
                 game.youWin();
                 dummyGame.togglePause();
-            })
+            });
         }
     }
 
