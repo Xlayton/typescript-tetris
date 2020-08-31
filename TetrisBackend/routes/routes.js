@@ -29,8 +29,17 @@ const makeRoom = (req, res) => {
 
 const addSocketToRoom = (req, res) => {
     if (req.body.socketId && req.body.lobbyId) {
-        lobbies.filter(lobby => lobby.id === parseInt(req.body.lobbyId))[0].sockets.push(req.body.socketId);
-        res.send("Cool");
+        let lobby = lobbies.filter(lobby => lobby.id === parseInt(req.body.lobbyId) && lobby.sockets.length < 2)[0];
+        if (lobby) {
+            lobby.sockets.push(req.body.socketId);
+            res.send({
+                code: 1
+            })
+        } else {
+            res.send({
+                code: 0
+            });
+        }
     }
 }
 
