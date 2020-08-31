@@ -71,29 +71,25 @@ export class GameView extends Component<IProps, IState> {
         return (
             <>
                 {this.redirectIfNoRoomId()}
-                <div id="controlledGame">
-                    <div id="container">
-                        <canvas id="gameCanvas" width="240" height="360"></canvas>
-                        <div id="floatingMessage"></div>
+                <div id="matchCanvas">
+                    <div id="controlledGame">
+                        <div id="container">
+                            <canvas id="gameCanvas" width="240" height="360"></canvas>
+                            <div id="floatingMessage"></div>
+                        </div>
+                        <div className="instructions">
+                            <b>Controls:</b>
+                            <ul>
+                                <li>Left Arrow - Move shape left</li>
+                                <li>Right Arrow - Move shape right</li>
+                                <li>Up Arrow - Rotate shape</li>
+                                <li>Down Arrow - Drop shape</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div className="instructions">
-                        <b>Keys:</b>
-                        <ul>
-                            <li>Left Arrow - Move shape left</li>
-                            <li>Right Arrow - Move shape right</li>
-                            <li>Up Arrow - Rotate shape</li>
-                            <li>Down Arrow - Drop shape</li>
-                            <li>P - pause / resume game</li>
-                            <li>F - faster</li>
-                            <li>F2 - start new game</li>
-                        </ul>
-                        <div>Score: <span id="scoreLabel"></span></div>
-                        <div>Level: <span id="levelLabel"></span></div>
-                        <div>Rows: <span id="rowsLabel"></span></div>
+                    <div id="dummyGame">
+                        <canvas id="dummyCanvas" width="240" height="360"></canvas>
                     </div>
-                </div>
-                <div id="dummyGame">
-                    <canvas id="dummyCanvas" width="240" height="360"></canvas>
                 </div>
             </>
         )

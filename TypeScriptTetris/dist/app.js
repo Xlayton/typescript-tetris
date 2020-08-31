@@ -158,11 +158,11 @@ var App = function (_super) {
     }
     App.prototype.render = function () {
         var _this = this;
-        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/lobby" }, "Lobby Page"), react_1["default"].createElement(react_router_dom_1.NavLink, { to: "/" }, "Home"), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: function component() {
+        return react_1["default"].createElement(react_router_dom_1.BrowserRouter, null, react_1["default"].createElement(react_router_dom_1.NavLink, { className: "pageRoute", to: "/" }, "Home"), react_1["default"].createElement(react_router_dom_1.NavLink, { className: "pageRoute", to: "/lobby" }, "Lobby Page"), react_1["default"].createElement("div", null, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/play", component: function component() {
                 return react_1["default"].createElement(GameView_1.GameView, { roomId: _this.state.roomId, apiUrl: App.apiUrl, setRoomId: _this.setRoomId });
-            } })), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
+            } })), react_1["default"].createElement("div", null, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/lobby", component: function component() {
                 return react_1["default"].createElement(LobbyView_1.LobbyView, { apiHost: App.apiUrl, username: "Testing...", setRoomId: _this.setRoomId, roomId: _this.state.roomId });
-            } })), react_1["default"].createElement("div", { id: "pageRoute" }, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
+            } })), react_1["default"].createElement("div", null, react_1["default"].createElement(react_router_dom_1.Route, { exact: true, path: "/", component: HomeView_1.HomeView })));
     };
     App.apiUrl = "http://localhost:3001";
     return App;
@@ -291,7 +291,7 @@ var GameView = function (_super) {
         }
     };
     GameView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, this.redirectIfNoRoomId(), react_1["default"].createElement("div", { id: "controlledGame" }, react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Keys:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape"), react_1["default"].createElement("li", null, "P - pause / resume game"), react_1["default"].createElement("li", null, "F - faster"), react_1["default"].createElement("li", null, "F2 - start new game")), react_1["default"].createElement("div", null, "Score: ", react_1["default"].createElement("span", { id: "scoreLabel" })), react_1["default"].createElement("div", null, "Level: ", react_1["default"].createElement("span", { id: "levelLabel" })), react_1["default"].createElement("div", null, "Rows: ", react_1["default"].createElement("span", { id: "rowsLabel" })))), react_1["default"].createElement("div", { id: "dummyGame" }, react_1["default"].createElement("canvas", { id: "dummyCanvas", width: "240", height: "360" })));
+        return react_1["default"].createElement(react_1["default"].Fragment, null, this.redirectIfNoRoomId(), react_1["default"].createElement("div", { id: "matchCanvas" }, react_1["default"].createElement("div", { id: "controlledGame" }, react_1["default"].createElement("div", { id: "container" }, react_1["default"].createElement("canvas", { id: "gameCanvas", width: "240", height: "360" }), react_1["default"].createElement("div", { id: "floatingMessage" })), react_1["default"].createElement("div", { className: "instructions" }, react_1["default"].createElement("b", null, "Controls:"), react_1["default"].createElement("ul", null, react_1["default"].createElement("li", null, "Left Arrow - Move shape left"), react_1["default"].createElement("li", null, "Right Arrow - Move shape right"), react_1["default"].createElement("li", null, "Up Arrow - Rotate shape"), react_1["default"].createElement("li", null, "Down Arrow - Drop shape")))), react_1["default"].createElement("div", { id: "dummyGame" }, react_1["default"].createElement("canvas", { id: "dummyCanvas", width: "240", height: "360" }))));
     };
     return GameView;
 }(react_1.Component);
@@ -364,7 +364,7 @@ var HomeView = function (_super) {
         console.log("Mounted");
     };
     HomeView.prototype.render = function () {
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("h1", null, "Home"));
+        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("h1", { id: "homeScreen" }, "Multiplayer Tetris"));
     };
     return HomeView;
 }(react_1.Component);
@@ -479,10 +479,10 @@ var LobbyView = function (_super) {
     };
     LobbyView.prototype.render = function () {
         var _this = this;
-        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("button", { type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
-            return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("p", null, "Id of Lobby: ", lobby.id), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("br", null), react_1["default"].createElement("p", null, "Current amount of players: ", lobby.playerCount), react_1["default"].createElement("br", null), react_1["default"].createElement("ul", null, "All users in lobby:", react_1["default"].createElement("li", null, lobby.users), react_1["default"].createElement("button", { onClick: function onClick() {
+        return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("h1", { id: "lobbyTitle" }, "Current Lobbies"), react_1["default"].createElement("button", { className: "lobbyButton createButton", type: "button", onClick: this.createLobby }, "Create Lobby"), react_1["default"].createElement("div", null, this.state.lobbies.map(function (lobby) {
+            return react_1["default"].createElement(react_1["default"].Fragment, null, react_1["default"].createElement("ul", null, react_1["default"].createElement("li", { className: "lobbyInfo" }, "Id of Lobby: ", lobby.id), react_1["default"].createElement("li", { className: "lobbyInfo" }, "Max number of players: ", lobby.maxPlayers), react_1["default"].createElement("li", { className: "lobbyInfo" }, "Current amount of players: ", lobby.playerCount)), react_1["default"].createElement("button", { className: "lobbyButton joinButton", onClick: function onClick() {
                     return _this.joinGame(lobby.id);
-                } }, "Join Lobby")));
+                } }, "Join Lobby"));
         })), this.redirectToGame());
     };
     return LobbyView;
@@ -597,7 +597,7 @@ var Game = function (_super) {
         _this.messageLabel = document.getElementById('floatingMessage');
         _this.canvas = document.getElementById(canvasId);
         _this.context = _this.canvas.getContext("2d");
-        _this.grid = new Grid_1.Grid(16, 10, 20, 'gray', _this.canvas);
+        _this.grid = new Grid_1.Grid(16, 10, 20, 'black', _this.canvas);
         _this.grid.eraseGrid();
         _this.speed = 1000;
         var x = _this;
